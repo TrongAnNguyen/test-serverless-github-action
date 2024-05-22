@@ -87,6 +87,7 @@ jobs:
 
     steps:
       - name: Current working directory
+        working-directory: ./apps/api-natsoft
         run: pwd
 
       - name: Serverless deploy ${{ inputs.ENVIRONMENT }}
