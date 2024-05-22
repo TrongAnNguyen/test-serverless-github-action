@@ -1,0 +1,56 @@
+service: api-natsoft
+
+useDotenv: true
+
+plugins:
+  - 'serverless-plugin-typescript'
+  - serverless-plugin-common-excludes
+  - serverless-plugin-include-dependencies
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      name: ${env:IAM_ROLE}
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:ListBucket
+          Resource:
+            - 'arn:aws:s3:::${env:S3_BUCKET}'
+            - 'arn:aws:s3:::${env:S3_BUCKET}/*'
+  environment:
+    NODE_ENV: ${opt:stage, 'dev'}
+    SUPERCAR_TRANSFORMER_PORT: ${env:SUPERCAR_TRANSFORMER_PORT}
+    FIREBASE_SERVICE_ACCOUNT_PATH: ${env:FIREBASE_SERVICE_ACCOUNT_PATH}
+
+functions:
+  main:
+    handler: src/lambda.handler
+    reservedConcurrency: 1
+    # Disable retry since retry will result in data duplication
+    maximumRetryAttempts: 0
+    timeout: 120
+    events:
+      - s3:
+          bucket: ${env:S3_BUCKET}
+          event: s3:ObjectCreated:*
+          existing: true
+          forceDeploy: true
+
+package:
+  excludeDevDependencies: false
+  include:
+    - src/**
+    - node_modules/**
+  exclude:
+    - .git/**
+    - .gitignore
+    - .serverless/**
+    - node_modules/**/README.*
+    - node_modules/**/CHANGELOG.*
+    - ./**/*.xml
+    - ./**/*.XML
