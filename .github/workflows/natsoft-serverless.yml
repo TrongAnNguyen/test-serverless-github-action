@@ -24,8 +24,8 @@ on:
           - develop
 
 jobs:
-  build:
-    name: Setup
+  serverless-deploy:
+    name: Serverless deploy
     runs-on: ubuntu-latest
     environment: ${{ inputs.ENVIRONMENT }}
     env:
@@ -76,19 +76,10 @@ jobs:
         working-directory: ./apps/api-natsoft
         run: echo ${{ secrets.FIREBASE_SERVICES_JSON_BASE_64 }} | base64 -d > ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PATH }}
 
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
-    strategy:
-      matrix:
-        node-version: [18.x]
-
-    steps:
       - name: Current working directory
-        working-directory: ./apps/api-natsoft
         run: pwd
+      - name: List files
+        run: ls -la
 
       - name: Serverless deploy ${{ inputs.ENVIRONMENT }}
         uses: serverless/github-action@v3.2
