@@ -50,6 +50,28 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Map serverless stage from environment (dev, staging, prod)
+        run: |
+          case ${{ inputs.ENVIRONMENT }} in
+            production)
+              export SERVERLESS_STAGE=prod
+              ;;
+            staging)
+              export SERVERLESS_STAGE=staging
+              ;;
+            develop)
+              export SERVERLESS_STAGE=dev
+              ;;
+            *)
+              echo "Invalid environment"
+              exit 1
+              ;;
+          esac
+          echo "SERVERLESS_STAGE=$SERVERLESS_STAGE" >> $GITHUB_ENV
+
+      - name: serverless stage
+        run: This is serverless stage ${{ env.SERVERLESS_STAGE }}
+
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
